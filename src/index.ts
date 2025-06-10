@@ -2,18 +2,18 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { z } from "zod";
 import express from "express";
- 
+
 const app = express();
 app.use(express.json());
- 
+
 const transport: StreamableHTTPServerTransport =
   new StreamableHTTPServerTransport({
     // ステートレスなサーバーの場合、undefined を指定する
     sessionIdGenerator: undefined,
   });
- 
+
 const mcpServer = new McpServer({ name: "my-server", version: "0.0.1" });
- 
+
 // シンプルにサイコロを振った結果を返すツール
 mcpServer.tool(
   // ツールの名前
@@ -34,13 +34,13 @@ mcpServer.tool(
         },
       ],
     };
-  }
+  },
 );
- 
+
 const setupServer = async () => {
   await mcpServer.connect(transport);
 };
- 
+
 // POST リクエストで受け付ける
 app.post("/mcp", async (req, res) => {
   console.log("Received MCP request:", req.body);
@@ -62,7 +62,7 @@ app.post("/mcp", async (req, res) => {
     }
   }
 });
- 
+
 // GET リクエストは SSE エンドポイントとの互換性のために実装する必要がある
 // SSE エンドポイントを実装しない場合は、405 Method Not Allowed を返す
 app.get("/mcp", async (req, res) => {
@@ -75,10 +75,10 @@ app.get("/mcp", async (req, res) => {
         message: "Method not allowed.",
       },
       id: null,
-    })
+    }),
   );
 });
- 
+
 // DELETE リクエストはステートフルなサーバーの場合に実装する必要がある
 app.delete("/mcp", async (req, res) => {
   console.log("Received DELETE MCP request");
@@ -90,11 +90,10 @@ app.delete("/mcp", async (req, res) => {
         message: "Method not allowed.",
       },
       id: null,
-    })
+    }),
   );
 });
- 
- 
+
 setupServer()
   .then(() => {
     app.listen(3000, () => {
@@ -105,7 +104,7 @@ setupServer()
     console.error("Error setting up server:", err);
     process.exit(1);
   });
- 
+
 // graceful shutdown
 process.on("SIGINT", async () => {
   console.log("Shutting down server...");
@@ -115,7 +114,7 @@ process.on("SIGINT", async () => {
   } catch (error) {
     console.error(`Error closing transport:`, error);
   }
- 
+
   await mcpServer.close();
   console.log("Server shutdown complete");
   process.exit(0);
