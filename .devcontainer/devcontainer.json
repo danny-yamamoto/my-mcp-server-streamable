@@ -11,7 +11,8 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"saoudrizwan.claude-dev"
+				"saoudrizwan.claude-dev",
+				"bierner.markdown-mermaid"
 			]
 		}
 	}
