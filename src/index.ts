@@ -14,25 +14,17 @@ const transport: StreamableHTTPServerTransport =
 
 const mcpServer = new McpServer({ name: "my-server", version: "0.0.1" });
 
-// シンプルにサイコロを振った結果を返すツール
 mcpServer.tool(
-  // ツールの名前
-  "dice",
-  // ツールの説明
-  "サイコロを振った結果を返します",
-  // ツールの引数のスキーマ
-  { sides: z.number().min(1).default(10).describe("サイコロの面の数") },
-  // ツールが実行されたときの処理
-  async (input) => {
-    const sides = input.sides ?? 10;
-    const result = Math.floor(Math.random() * sides) + 1;
+  "fetch-role-server",
+  "Use the API to get the role of a staff member",
+  { id: z.string().describe("The ID of the staff member") },
+  async ({ id }) => {
+    const response = await fetch(
+      `http://host.docker.internal:3000/v1/backyard-security/users?sids=${id}`,
+    );
+    const data = await response.json();
     return {
-      content: [
-        {
-          type: "text",
-          text: result.toString(),
-        },
-      ],
+      content: [{ type: "text", text: JSON.stringify(data) }],
     };
   },
 );
